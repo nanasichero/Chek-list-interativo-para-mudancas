@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist de Casa e Mudança</title>
+    <!-- Carregando Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonte Inter do Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Configuração de fontes e cores customizadas -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Cabeçalho Fixo com Progresso e Ações Rápidas -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-brand-600 text-white text-base shadow-sm">
+                            🏠
+                        </span>
+                        Checklist Casa &amp; Mudança
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+                        Progresso salvo automaticamente neste dispositivo
+                    </p>
+                </div>
+
+                <!-- Botões de Ação Global -->
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button id="btn-copy-pending" type="button"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-brand-50 text-brand-700 hover:bg-brand-100 border border-brand-200 transition active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                        </svg>
+                        Copiar Pendentes
+                    </button>
+                    <button id="btn-open-reset" type="button"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white text-slate-600 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-200 transition active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        Resetar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Barra de Progresso Geral -->
+            <div class="mt-4">
+                <div class="flex items-center justify-between text-xs sm:text-sm font-medium mb-1.5">
+                    <span id="progress-label" class="text-slate-700">0 de 0 itens concluídos</span>
+                    <span id="progress-percent" class="text-brand-700 font-bold">0%</span>
+                </div>
+                <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200/70">
+                    <div id="progress-bar" class="h-full bg-gradient-to-r from-brand-500 to-emerald-500 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Barra de Busca e Filtros -->
+    <section class="max-w-5xl w-full mx-auto px-4 sm:px-6 pt-5 pb-2">
+        <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3">
+            <!-- Campo de Busca -->
+            <div class="relative flex-1">
+                <span class="absolute inset-y-0 left-3.5 flex items-center text-slate-400 pointer-events-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+                    </svg>
+                </span>
+                <input id="search-input" type="text" placeholder="Buscar item (ex: geladeira, panela, cortinas)..."
+                    class="w-full pl-10 pr-9 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
+                <button id="btn-clear-search" type="button" title="Limpar busca"
+                    class="hidden absolute inset-y-0 right-2.5 flex items-center text-slate-400 hover:text-slate-600 px-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Filtros de Status -->
+            <div class="flex items-center bg-slate-100 p-1 rounded-xl shrink-0" role="group" aria-label="Filtrar por status">
+                <button type="button" data-filter="all"
+                    class="filter-btn flex-1 md:flex-none px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition bg-white text-slate-900 shadow-sm">
+                    Todos
+                </button>
+                <button type="button" data-filter="pending"
+                    class="filter-btn flex-1 md:flex-none px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition text-slate-600 hover:text-slate-900">
+                    Pendentes
+                </button>
+                <button type="button" data-filter="completed"
+                    class="filter-btn flex-1 md:flex-none px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition text-slate-600 hover:text-slate-900">
+                    Concluídos
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Área Principal dos Cartões de Categorias -->
+    <main id="categories-container" class="max-w-5xl w-full mx-auto px-4 sm:px-6 py-4 flex-1 grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+        <!-- Os cartões serão renderizados via JavaScript -->
+    </main>
+
+    <!-- Mensagem de Estado Vazio (quando a busca/filtro não encontrar nada) -->
+    <div id="empty-state" class="hidden max-w-md mx-auto px-4 py-12 text-center">
+        <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-2xl">
+            🔍
+        </div>
+        <h2 class="text-base font-semibold text-slate-800">Nenhum item encontrado</h2>
+        <p class="text-sm text-slate-500 mt-1">Tente buscar por outro termo ou altere o filtro de status acima.</p>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 text-center text-xs text-slate-400">
+        Checklist de Casa e Mudança • Adicione novos itens diretamente dentro de cada cômodo
+    </footer>
+
+    <!-- Modal Personalizado de Confirmação de Reset (sem usar window.confirm) -->
+    <div id="reset-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
+            <div class="flex items-start gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">O que deseja resetar?</h3>
+                    <p class="text-sm text-slate-600 mt-1">
+                        Você pode apenas desmarcar todos os itens concluídos ou restaurar a lista original removendo os itens personalizados.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex flex-col gap-2">
+                <button id="btn-uncheck-all" type="button"
+                    class="w-full py-2.5 px-4 rounded-xl text-sm font-medium bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 transition">
+                    Apenas desmarcar tudo (manter itens extras)
+                </button>
+                <button id="btn-full-reset" type="button"
+                    class="w-full py-2.5 px-4 rounded-xl text-sm font-medium bg-rose-600 text-white hover:bg-rose-700 transition">
+                    Restaurar lista original de fábrica
+                </button>
+                <button id="btn-cancel-reset" type="button"
+                    class="w-full py-2.5 px-4 rounded-xl text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition mt-1">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de Notificação (Feedback Visual) -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-300">
+        <div class="bg-slate-900 text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg flex items-center gap-2.5">
+            <span id="toast-icon">✅</span>
+            <span id="toast-message">Ação concluída!</span>
+        </div>
+    </div>
+
+    <!-- Área oculta para fallback seguro de cópia via document.execCommand -->
+    <textarea id="clipboard-helper" class="sr-only" aria-hidden="true"></textarea>
+
+    <script>
+        /**
+         * Dados iniciais exatos definidos pelo usuário (8 categorias)
+         */
+        const INITIAL_DATA = [
+            {
+                id: 'cat-1',
+                title: '1. Sala (Estar e Jantar)',
+                icon: '🛋️',
+                items: [
+                    'Sofá',
+                    'Rack ou painel + TV',
+                    'Mesa de centro ou lateral',
+                    'Mesa de jantar + cadeiras',
+                    'Cortinas (com varão ou trilho)',
+                    'Almofadas e manta',
+                    'Espelho e quadros',
+                    'Luminária',
+                    'Jogos americanos (ou toalha de mesa)'
+                ]
+            },
+            {
+                id: 'cat-2',
+                title: '2. Cozinha – Móveis e Eletros Essenciais',
+                icon: '🍳',
+                items: [
+                    'Armários (superiores, inferiores e gabinete de pia)',
+                    'Lixeira',
+                    'Escorredor de louça + suporte de detergente/esponja',
+                    'Geladeira',
+                    'Fogão (ou cooktop + forno)',
+                    'Depurador ou coifa',
+                    'Micro-ondas',
+                    'Air fryer',
+                    'Liquidificador (ou mixer)',
+                    'Cafeteira',
+                    'Sanduicheira (ou torradeira)',
+                    'Filtro ou purificador de água'
+                ]
+            },
+            {
+                id: 'cat-3',
+                title: '3. Cozinha – Utensílios e Louças',
+                icon: '🍽️',
+                items: [
+                    'Jogo de panelas + frigideira',
+                    'Panela de pressão',
+                    'Assadeiras e travessas refratárias',
+                    'Chaleira ou leiteira',
+                    'Jogo de facas + tábua de corte',
+                    'Colheres de silicone/pau, espátula, concha e escumadeira',
+                    'Abridor de latas/garrafas e saca-rolhas',
+                    'Ralador, descascador e peneira',
+                    'Escorredor de macarrão',
+                    'Potes herméticos (para geladeira, freezer e mantimentos)',
+                    'Jarra e garrafa térmica',
+                    'Luva térmica',
+                    'Pratos (rasos, fundos e de sobremesa)',
+                    'Copos, canecas e taças',
+                    'Talheres completos',
+                    'Tigelas / bowls e saladeira'
+                ]
+            },
+            {
+                id: 'cat-4',
+                title: '4. Quartos',
+                icon: '🛏️',
+                items: [
+                    'Guarda-roupa',
+                    'Escrivaninha'
+                ]
+            },
+            {
+                id: 'cat-5',
+                title: '5. Cama, Mesa e Banho',
+                icon: '🧺',
+                items: [
+                    'Jogos de lençol + fronhas',
+                    'Travesseiros + protetores (de travesseiro e colchão)',
+                    'Edredom / cobertor e colcha',
+                    'Toalhas de banho e de rosto',
+                    'Panos de prato'
+                ]
+            },
+            {
+                id: 'cat-6',
+                title: '6. Banheiro',
+                icon: '🚿',
+                items: [
+                    'Gabinete e espelho',
+                    'Box de vidro ou cortina + chuveiro',
+                    'Ducha higiênica',
+                    'Porta-toalhas e porta-papel higiênico',
+                    'Saboneteira e porta-escovas',
+                    'Lixeira e escova sanitária',
+                    'Secador de cabelo'
+                ]
+            },
+            {
+                id: 'cat-7',
+                title: '7. Lavanderia e Limpeza',
+                icon: '🧹',
+                items: [
+                    'Máquina de lavar roupas',
+                    'Tanque e armário multiuso',
+                    'Varal (de teto, parede ou chão) + prendedores',
+                    'Cesto de roupa suja',
+                    'Ferro de passar (e tábua, se usar)',
+                    'Balde e bacia',
+                    'Vassoura, rodo e pá de lixo',
+                    'Mop',
+                    'Aspirador de pó',
+                    'Panos de chão e panos de microfibra',
+                    'Esponjas, escova de limpeza e luvas de borracha',
+                    'Escadinha doméstica',
+                    'Produtos básicos (detergente, desinfetante, água sanitária, desengordurante, álcool, sabão para roupas, amaciante e sacos de lixo)'
+                ]
+            },
+            {
+                id: 'cat-8',
+                title: '8. Eletrônicos, Ferramentas e Organização Geral',
+                icon: '🧰',
+                items: [
+                    'Roteador Wi-Fi (e repetidor, se necessário)',
+                    'Carregadores de celular',
+                    'Extensões elétricas, filtros de linha e adaptadores',
+                    'Kit básico de ferramentas (martelo, chaves de fenda/Philips, alicate, trena, furadeira/parafusadeira, buchas e parafusos)',
+                    'Fita isolante e fita veda-rosca',
+                    'Estilete, tesoura e cola instantânea',
+                    'Lanterna e pilhas',
+                    'Kit de primeiros socorros',
+                    'Caixas organizadoras, cestos e colmeias de gaveta',
+                    'Pasta para documentos importantes'
+                ]
+            }
+        ];
+
+        const STORAGE_KEY = 'checklist_mudanca_v1';
+
+        /**
+         * Estado global da aplicação
+         */
+        let state = {
+            categories: [],
+            searchQuery: '',
+            statusFilter: 'all', // 'all' | 'pending' | 'completed'
+            collapsedCategories: {}
+        };
+
+        /**
+         * Gera a estrutura padrão a partir de INITIAL_DATA
+         */
+        function buildDefaultCategories() {
+            return INITIAL_DATA.map((cat, cIdx) => ({
+                id: cat.id,
+                title: cat.title,
+                icon: cat.icon,
+                items: cat.items.map((text, iIdx) => ({
+                    id: `${cat.id}-item-${iIdx}`,
+                    text: text,
+                    completed: false,
+                    custom: false
+                }))
+            }));
+        }
+
+        /**
+         * Carrega estado salvo no localStorage com tratamento de erro
+         */
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed.categories) && parsed.categories.length > 0) {
+                        state.categories = parsed.categories;
+                        state.collapsedCategories = parsed.collapsedCategories || {};
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.warn('Não foi possível ler o localStorage, usando lista padrão:', error);
+            }
+            state.categories = buildDefaultCategories();
+        }
+
+        /**
+         * Salva o estado atual no localStorage
+         */
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    categories: state.categories,
+                    collapsedCategories: state.collapsedCategories
+                }));
+            } catch (error) {
+                console.warn('Erro ao salvar no localStorage:', error);
+            }
+        }
+
+        /**
+         * Exibe notificação discreta (Toast)
+         */
+        let toastTimeout = null;
+        function showToast(message, icon = '✅') {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
+
+            msgEl.textContent = message;
+            iconEl.textContent = icon;
+
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-2');
+            }, 2600);
+        }
+
+        /**
+         * Normaliza string para busca sem acentos
+         */
+        function normalizeText(str) {
+            return str
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        /**
+         * Atualiza a barra de progresso geral
+         */
+        function updateGlobalProgress() {
+            let total = 0;
+            let completed = 0;
+
+            state.categories.forEach(cat => {
+                total += cat.items.length;
+                completed += cat.items.filter(item => item.completed).length;
+            });
+
+            const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+            document.getElementById('progress-label').textContent =
+                `${completed} de ${total} ${total === 1 ? 'item concluído' : 'itens concluídos'}`;
+            document.getElementById('progress-percent').textContent = `${percent}%`;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+        }
+
+        /**
+         * Renderiza todos os cartões de categorias e itens filtrados
+         */
+        function render() {
+            const container = document.getElementById('categories-container');
+            const emptyState = document.getElementById('empty-state');
+            container.innerHTML = '';
+
+            const normalizedQuery = normalizeText(state.searchQuery.trim());
+            let visibleCategoriesCount = 0;
+
+            state.categories.forEach(category => {
+                // Filtra itens conforme busca e status
+                const filteredItems = category.items.filter(item => {
+                    const matchesSearch = !normalizedQuery || normalizeText(item.text).includes(normalizedQuery);
+                    const matchesStatus =
+                        state.statusFilter === 'all' ||
+                        (state.statusFilter === 'pending' && !item.completed) ||
+                        (state.statusFilter === 'completed' && item.completed);
+                    return matchesSearch && matchesStatus;
+                });
+
+                // Se houver filtro ativo e a categoria não tiver itens correspondentes, oculta o cartão
+                const hasActiveFilter = normalizedQuery.length > 0 || state.statusFilter !== 'all';
+                if (hasActiveFilter && filteredItems.length === 0) {
+                    return;
+                }
+
+                visibleCategoriesCount++;
+
+                const totalCat = category.items.length;
+                const doneCat = category.items.filter(i => i.completed).length;
+                const isAllDone = totalCat > 0 && doneCat === totalCat;
+                const isCollapsed = !!state.collapsedCategories[category.id] && !hasActiveFilter;
+
+                // Criação do cartão do cômodo
+                const card = document.createElement('article');
+                card.className = `bg-white rounded-2xl border transition-all duration-200 shadow-sm overflow-hidden ${
+                    isAllDone ? 'border-emerald-200 bg-emerald-50/20' : 'border-slate-200'
+                }`;
+
+                // Cabeçalho do Cartão
+                const header = document.createElement('div');
+                header.className = 'p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-3 cursor-pointer select-none hover:bg-slate-50/70 transition';
+                header.onclick = () => toggleCategoryCollapse(category.id);
+
+                header.innerHTML = `
+                    <div class="flex items-center gap-3 min-w-0">
+                        <span class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-lg shrink-0">
+                            ${category.icon}
+                        </span>
+                        <div class="min-w-0">
+                            <h2 class="text-sm sm:text-base font-bold text-slate-900 truncate">
+                                ${escapeHtml(category.title)}
+                            </h2>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                                    isAllDone
+                                        ? 'bg-emerald-100 text-emerald-800'
+                                        : 'bg-slate-100 text-slate-600'
+                                }">
+                                    ${doneCat}/${totalCat} concluídos
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" aria-label="Expandir ou recolher categoria"
+                        class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition shrink-0">
+                        <svg class="w-5 h-5 transform transition-transform duration-200 ${isCollapsed ? '-rotate-90' : 'rotate-0'}"
+                            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                `;
+
+                card.appendChild(header);
+
+                // Corpo do Cartão (Lista de Itens + Formulário de Adição)
+                if (!isCollapsed) {
+                    const body = document.createElement('div');
+                    body.className = 'p-3 sm:p-4';
+
+                    // Lista de itens
+                    const list = document.createElement('ul');
+                    list.className = 'space-y-1.5';
+
+                    if (filteredItems.length === 0) {
+                        const emptyCat = document.createElement('li');
+                        emptyCat.className = 'text-xs text-slate-400 italic py-2 px-2';
+                        emptyCat.textContent = 'Nenhum item nesta categoria.';
+                        list.appendChild(emptyCat);
+                    } else {
+                        filteredItems.forEach(item => {
+                            const li = document.createElement('li');
+                            li.className = `group flex items-start justify-between gap-2 p-2.5 rounded-xl transition-all duration-150 ${
+                                item.completed
+                                    ? 'bg-slate-50/80 text-slate-400'
+                                    : 'hover:bg-slate-50 text-slate-700'
+                            }`;
+
+                            // Label clicável para marcar/desmarcar
+                            const label = document.createElement('label');
+                            label.className = 'flex items-start gap-3 cursor-pointer flex-1 min-w-0 select-none';
+
+                            const checkbox = document.createElement('input');
+                            checkbox.type = 'checkbox';
+                            checkbox.checked = item.completed;
+                            checkbox.className = 'mt-0.5 w-5 h-5 rounded-md border-slate-300 text-brand-600 focus:ring-brand-500 cursor-pointer shrink-0 transition';
+                            checkbox.onchange = () => toggleItem(category.id, item.id);
+
+                            const textSpan = document.createElement('span');
+                            textSpan.className = `text-sm leading-snug break-words transition-all duration-200 ${
+                                item.completed ? 'line-through text-slate-400' : 'text-slate-700 font-medium'
+                            }`;
+                            textSpan.textContent = item.text;
+
+                            label.appendChild(checkbox);
+                            label.appendChild(textSpan);
+                            li.appendChild(label);
+
+                            // Selo e botão de excluir apenas para itens personalizados
+                            if (item.custom) {
+                                const actionsWrap = document.createElement('div');
+                                actionsWrap.className = 'flex items-center gap-1.5 shrink-0';
+
+                                const badge = document.createElement('span');
+                                badge.className = 'text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded bg-brand-50 text-brand-700';
+                                badge.textContent = 'Extra';
+
+                                const delBtn = document.createElement('button');
+                                delBtn.type = 'button';
+                                delBtn.title = 'Excluir item personalizado';
+                                delBtn.className = 'p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition';
+                                delBtn.innerHTML = `
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                `;
+                                delBtn.onclick = () => deleteCustomItem(category.id, item.id);
+
+                                actionsWrap.appendChild(badge);
+                                actionsWrap.appendChild(delBtn);
+                                li.appendChild(actionsWrap);
+                            }
+
+                            list.appendChild(li);
+                        });
+                    }
+
+                    body.appendChild(list);
+
+                    // Formulário para adicionar novo item personalizado na categoria
+                    const addForm = document.createElement('form');
+                    addForm.className = 'mt-3 pt-3 border-t border-slate-100 flex items-center gap-2';
+                    addForm.onsubmit = (e) => {
+                        e.preventDefault();
+                        const input = addForm.querySelector('input');
+                        const val = input.value.trim();
+                        if (val) {
+                            addCustomItem(category.id, val);
+                            input.value = '';
+                        }
+                    };
+
+                    addForm.innerHTML = `
+                        <input type="text" placeholder="Adicionar item em ${escapeHtml(category.title.replace(/^\d+\.\s*/, ''))}..."
+                            class="flex-1 text-xs sm:text-sm px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
+                        <button type="submit"
+                            class="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-medium hover:bg-brand-600 transition shrink-0 active:scale-95">
+                            + Adicionar
+                        </button>
+                    `;
+
+                    body.appendChild(addForm);
+                    card.appendChild(body);
+                }
+
+                container.appendChild(card);
+            });
+
+            // Mostra ou esconde mensagem de estado vazio
+            if (visibleCategoriesCount === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            updateGlobalProgress();
+        }
+
+        /**
+         * Alterna conclusão de um item
+         */
+        function toggleItem(categoryId, itemId) {
+            const category = state.categories.find(c => c.id === categoryId);
+            if (!category) return;
+            const item = category.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            item.completed = !item.completed;
+            saveState();
+            render();
+        }
+
+        /**
+         * Adiciona um item personalizado em uma categoria
+         */
+        function addCustomItem(categoryId, text) {
+            const category = state.categories.find(c => c.id === categoryId);
+            if (!category) return;
+
+            category.items.push({
+                id: `${categoryId}-custom-${Date.now()}`,
+                text: text,
+                completed: false,
+                custom: true
+            });
+
+            // Garante que a categoria esteja aberta
+            state.collapsedCategories[categoryId] = false;
+            saveState();
+            render();
+            showToast('Item adicionado com sucesso!');
+        }
+
+        /**
+         * Exclui um item personalizado
+         */
+        function deleteCustomItem(categoryId, itemId) {
+            const category = state.categories.find(c => c.id === categoryId);
+            if (!category) return;
+
+            category.items = category.items.filter(i => i.id !== itemId);
+            saveState();
+            render();
+            showToast('Item removido.', '🗑️');
+        }
+
+        /**
+         * Recolhe ou expande uma categoria
+         */
+        function toggleCategoryCollapse(categoryId) {
+            state.collapsedCategories[categoryId] = !state.collapsedCategories[categoryId];
+            saveState();
+            render();
+        }
+
+        /**
+         * Copia todos os itens pendentes formatados para a área de transferência
+         */
+        function copyPendingItems() {
+            const lines = ['📋 CHECKLIST DE CASA E MUDANÇA (ITENS PENDENTES)', ''];
+            let pendingCount = 0;
+
+            state.categories.forEach(cat => {
+                const pending = cat.items.filter(i => !i.completed);
+                if (pending.length > 0) {
+                    lines.push(`${cat.title}:`);
+                    pending.forEach(item => {
+                        lines.push(`[ ] ${item.text}`);
+                        pendingCount++;
+                    });
+                    lines.push('');
+                }
+            });
+
+            if (pendingCount === 0) {
+                showToast('Parabéns! Não há nenhum item pendente.', '🎉');
+                return;
+            }
+
+            const textToCopy = lines.join('\n').trim();
+            const helper = document.getElementById('clipboard-helper');
+            helper.value = textToCopy;
+            helper.select();
+            helper.setSelectionRange(0, 99999);
+
+            try {
+                document.execCommand('copy');
+                showToast(`${pendingCount} itens pendentes copiados!`, '📋');
+            } catch (err) {
+                showToast('Não foi possível copiar automaticamente.', '⚠️');
+            }
+        }
+
+        /**
+         * Escapa caracteres HTML para evitar injeção de código em textos personalizados
+         */
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        /**
+         * Configuração dos Eventos da Interface
+         */
+        function bindEvents() {
+            const searchInput = document.getElementById('search-input');
+            const clearSearchBtn = document.getElementById('btn-clear-search');
+
+            searchInput.addEventListener('input', (e) => {
+                state.searchQuery = e.target.value;
+                clearSearchBtn.classList.toggle('hidden', state.searchQuery.length === 0);
+                render();
+            });
+
+            clearSearchBtn.addEventListener('click', () => {
+                state.searchQuery = '';
+                searchInput.value = '';
+                clearSearchBtn.classList.add('hidden');
+                searchInput.focus();
+                render();
+            });
+
+            // Filtros de Status
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.statusFilter = btn.dataset.filter;
+                    filterBtns.forEach(b => {
+                        const isActive = b === btn;
+                        b.classList.toggle('bg-white', isActive);
+                        b.classList.toggle('text-slate-900', isActive);
+                        b.classList.toggle('shadow-sm', isActive);
+                        b.classList.toggle('text-slate-600', !isActive);
+                    });
+                    render();
+                });
+            });
+
+            // Botão Copiar Pendentes
+            document.getElementById('btn-copy-pending').addEventListener('click', copyPendingItems);
+
+            // Controles do Modal de Reset
+            const resetModal = document.getElementById('reset-modal');
+            document.getElementById('btn-open-reset').addEventListener('click', () => {
+                resetModal.classList.remove('hidden');
+                resetModal.classList.add('flex');
+            });
+
+            document.getElementById('btn-cancel-reset').addEventListener('click', () => {
+                resetModal.classList.add('hidden');
+                resetModal.classList.remove('flex');
+            });
+
+            // Fechar modal clicando fora
+            resetModal.addEventListener('click', (e) => {
+                if (e.target === resetModal) {
+                    resetModal.classList.add('hidden');
+                    resetModal.classList.remove('flex');
+                }
+            });
+
+            // Desmarcar tudo
+            document.getElementById('btn-uncheck-all').addEventListener('click', () => {
+                state.categories.forEach(cat => {
+                    cat.items.forEach(item => {
+                        item.completed = false;
+                    });
+                });
+                saveState();
+                render();
+                resetModal.classList.add('hidden');
+                resetModal.classList.remove('flex');
+                showToast('Todos os itens foram desmarcados.', '🔄');
+            });
+
+            // Reset completo para a lista original
+            document.getElementById('btn-full-reset').addEventListener('click', () => {
+                state.categories = buildDefaultCategories();
+                state.collapsedCategories = {};
+                saveState();
+                render();
+                resetModal.classList.add('hidden');
+                resetModal.classList.remove('flex');
+                showToast('Lista original restaurada!', '✨');
+            });
+        }
+
+        // Inicialização
+        loadState();
+        bindEvents();
+        render();
+    </script>
+</body>
+</html>
+```
